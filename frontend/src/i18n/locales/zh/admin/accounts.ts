@@ -1,5 +1,23 @@
 export default {
     accounts: {
+      sub2apiUsage: {
+        local: '本地今日',
+        "title": "Sub2API 上游",
+        "probe": "上游用量",
+        "scope": "包含所有共用此上游 API Key 的客户端用量。费用和日期边界以上游为准，不代表底层 Codex 订阅额度。",
+        "today": "今日",
+        "total": "累计",
+        "requests": "请求",
+        "balance": "上游返回余额",
+        "expires": "到期时间",
+        "invalidKey": "上游报告密钥无效",
+        "keyStatus": "上游密钥状态",
+        "stale": "上次成功更新（已过期）",
+        "updated": "更新于",
+        "unavailable": "暂时无法获取上游用量",
+        "unsupported": "上游不支持此用量接口",
+        "quota": "额度"
+},
       title: '账号管理',
       description: '管理 AI 平台账号和 Cookie',
       createAccount: '添加账号',

@@ -1421,7 +1421,54 @@ export interface GrokBillingSummary {
   failed_windows?: string[]
 }
 
+export interface Sub2APIUsageTotals {
+  requests: number
+  total_tokens: number
+  cost?: number
+  actual_cost?: number
+}
+
+export interface Sub2APIUsageQuota {
+  limit: number
+  used: number
+  remaining: number
+  unit?: string
+  window?: string
+  reset_at?: string
+}
+
+export interface Sub2APIUsageSnapshot {
+  status: 'ok' | 'error' | 'unsupported'
+  error_code?: string
+  http_status?: number
+  updated_at?: string
+  checked_at: string
+  stale: boolean
+  data?: {
+    mode: 'unrestricted' | 'quota_limited'
+    isValid: boolean
+    status?: string
+    planName?: string
+    balance?: number
+    unit?: string
+    expires_at?: string
+    quota?: Sub2APIUsageQuota
+    rate_limits?: Sub2APIUsageQuota[]
+    subscription?: {
+      daily_usage_usd: number
+      weekly_usage_usd: number
+      monthly_usage_usd: number
+      daily_limit_usd?: number
+      weekly_limit_usd?: number
+      monthly_limit_usd?: number
+      expires_at?: string
+    }
+    usage?: { today?: Sub2APIUsageTotals; total?: Sub2APIUsageTotals }
+  }
+}
+
 export interface AccountUsageInfo {
+  sub2api_usage?: Sub2APIUsageSnapshot
   source?: 'passive' | 'active'
   updated_at: string | null
   five_hour: UsageProgress | null
