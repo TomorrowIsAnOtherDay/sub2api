@@ -1,6 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
 import AccountUsageCell from '../AccountUsageCell.vue'
+import Sub2APIUsageCell from '../Sub2APIUsageCell.vue'
 import type { Account } from '@/types'
 
 const { getUsage } = vi.hoisted(() => ({
@@ -1740,5 +1741,18 @@ describe('AccountUsageCell', () => {
     expect(wrapper.text()).toContain('7d|56')
     expect(wrapper.text()).not.toContain('7d S')
     expect(wrapper.text()).not.toContain('7d F')
+  })
+})
+
+
+describe('Sub2API upstream account integration', () => {
+  it('adds upstream usage alongside clearly labeled local usage for custom OpenAI API keys', () => {
+    const wrapper = mount(AccountUsageCell, { props: {
+      account: makeAccount({ platform: 'openai', type: 'apikey', credentials: { base_url: 'https://relay.example/v1' } }),
+      todayStats: { requests: 1, tokens: 100, cost: 0.1, standard_cost: 0.1, user_cost: 0.1 }
+    }, global: { stubs: { Sub2APIUsageCell: true } } })
+    expect(wrapper.findComponent(Sub2APIUsageCell).exists()).toBe(true)
+    expect(wrapper.text()).toContain('admin.accounts.sub2apiUsage.local')
+    wrapper.unmount()
   })
 })

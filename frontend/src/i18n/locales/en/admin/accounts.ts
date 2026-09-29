@@ -1,5 +1,23 @@
 export default {
     accounts: {
+      sub2apiUsage: {
+        local: 'Local today',
+        "title": "Sub2API upstream",
+        "probe": "Upstream usage",
+        "scope": "Usage across all clients sharing this upstream API key. Costs and day boundaries are reported by the upstream; this is not the underlying Codex subscription quota.",
+        "today": "Today",
+        "total": "Total",
+        "requests": "requests",
+        "balance": "Reported balance",
+        "expires": "Expires",
+        "invalidKey": "Upstream reports an invalid key",
+        "keyStatus": "Upstream key status",
+        "stale": "Last successful update (stale)",
+        "updated": "Updated",
+        "unavailable": "Upstream usage unavailable",
+        "unsupported": "Upstream usage API not supported",
+        "quota": "Quota"
+},
       title: 'Account Management',
       description: 'Manage AI platform accounts and credentials',
       createAccount: 'Create Account',

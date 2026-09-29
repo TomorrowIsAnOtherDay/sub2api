@@ -181,6 +181,8 @@ type AICredit struct {
 
 // UsageInfo 账号使用量信息
 type UsageInfo struct {
+	Sub2APIUsage *Sub2APIUsageSnapshot `json:"sub2api_usage,omitempty"`
+
 	Source             string         `json:"source,omitempty"`               // "passive" or "active"
 	UpdatedAt          *time.Time     `json:"updated_at,omitempty"`           // 更新时间
 	FiveHour           *UsageProgress `json:"five_hour"`                      // 5小时窗口
@@ -290,6 +292,7 @@ type ClaudeUsageFetcher interface {
 
 // AccountUsageService 账号使用量查询服务
 type AccountUsageService struct {
+	sub2APIUsage            *sub2APIUsageService
 	accountRepo             AccountRepository
 	usageLogRepo            UsageLogRepository
 	usageFetcher            ClaudeUsageFetcher
@@ -350,6 +353,10 @@ func (s *AccountUsageService) getUsageForAccount(ctx context.Context, account *A
 		return nil, fmt.Errorf("account is required")
 	}
 	accountID := account.ID
+
+	if isSub2APIUsageCandidate(account) && s.sub2APIUsage != nil {
+		return &UsageInfo{Source: "active", Sub2APIUsage: s.sub2APIUsage.get(ctx, account, forceProbe)}, nil
+	}
 
 	// Dedicated UI load-test accounts must remain fully interactive without ever
 	// contacting Anthropic with synthetic credentials. Reuse the same persisted

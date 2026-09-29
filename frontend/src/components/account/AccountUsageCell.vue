@@ -602,12 +602,18 @@
         :account="account"
         @updated="handleOpenCodeGoUsageUpdated"
       />
+      <Sub2APIUsageCell
+        v-if="hasSub2APIUsage"
+        :account="account"
+        :manual-refresh-token="manualRefreshToken"
+      />
       <!-- Today stats row (requests, tokens, cost, user_cost) -->
       <div
         v-if="todayStats"
         class="mb-0.5 flex items-center"
       >
         <div class="flex items-center gap-1.5 text-[9px] text-gray-500 dark:text-gray-400">
+          <span v-if="hasSub2APIUsage">{{ t('admin.accounts.sub2apiUsage.local') }}</span>
           <span class="rounded bg-gray-100 px-1.5 py-0.5 dark:bg-gray-800">
             {{ formatKeyRequests }} req
           </span>
@@ -660,7 +666,7 @@
 
       <!-- No data at all -->
       <div
-        v-if="!todayStats && !todayStatsLoading && !hasApiKeyQuota && !account.ollama_cloud_usage?.eligible && !account.opencode_go_usage?.eligible"
+        v-if="!todayStats && !todayStatsLoading && !hasApiKeyQuota && !account.ollama_cloud_usage?.eligible && !account.opencode_go_usage?.eligible && !hasSub2APIUsage"
         class="text-xs text-gray-400"
       >-</div>
     </div>
@@ -675,6 +681,7 @@ import type { Account, AccountUsageInfo, GeminiCredentials, WindowStats } from '
 import { buildOpenAIUsageRefreshKey } from '@/utils/accountUsageRefresh'
 import { enqueueUsageRequest } from '@/utils/usageLoadQueue'
 import { formatCompactNumber } from '@/utils/format'
+import { isSub2APIUsageCandidate } from '@/utils/sub2apiUsage'
 import UsageProgressBar from './UsageProgressBar.vue'
 import AccountQuotaInfo from './AccountQuotaInfo.vue'
 import OpenAIQuotaResetCell from './OpenAIQuotaResetCell.vue'
@@ -682,6 +689,7 @@ import GrokQuotaProbeCell from './GrokQuotaProbeCell.vue'
 import CNProviderQuotaCell from './CNProviderQuotaCell.vue'
 import CNProviderBalanceCell from './CNProviderBalanceCell.vue'
 import OllamaCloudUsageCell from './OllamaCloudUsageCell.vue'
+import Sub2APIUsageCell from './Sub2APIUsageCell.vue'
 import { cnQuotaCellVisible as cnQuotaCellVisibleFn, cnBalanceCellVisible as cnBalanceCellVisibleFn } from './credentialsBuilder'
 import OpenCodeGoUsageCell from './OpenCodeGoUsageCell.vue'
 
@@ -717,6 +725,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const hasSub2APIUsage = computed(() => isSub2APIUsageCandidate(props.account) && !props.account.ollama_cloud_usage?.eligible)
 const desktopViewportQuery = '(min-width: 768px)'
 
 const unmounted = ref(false)
