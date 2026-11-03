@@ -1045,7 +1045,7 @@ func (s *GatewayService) listSchedulableAccounts(ctx context.Context, groupID *i
 		var err error
 		if groupID != nil {
 			accounts, err = s.accountRepo.ListSchedulableByGroupIDAndPlatforms(ctx, *groupID, platforms)
-		} else if s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
+		} else if config.SimpleModeIgnoresGroups(s.cfg) {
 			accounts, err = s.accountRepo.ListSchedulableByPlatforms(ctx, platforms)
 		} else {
 			accounts, err = s.accountRepo.ListSchedulableUngroupedByPlatforms(ctx, platforms)
@@ -1085,7 +1085,7 @@ func (s *GatewayService) listSchedulableAccounts(ctx context.Context, groupID *i
 
 	var accounts []Account
 	var err error
-	if s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
+	if config.SimpleModeIgnoresGroups(s.cfg) {
 		accounts, err = s.accountRepo.ListSchedulableByPlatform(ctx, platform)
 	} else if groupID != nil {
 		accounts, err = s.accountRepo.ListSchedulableByGroupIDAndPlatform(ctx, *groupID, platform)

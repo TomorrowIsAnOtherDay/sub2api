@@ -37,7 +37,7 @@ func (s *OpenAIGatewayService) DiagnoseModelAvailabilityForPlatform(
 	platform = NormalizeOpenAICompatiblePlatform(platform)
 	queryGroupID := groupID
 	includeGrouped := false
-	if s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
+	if config.SimpleModeIgnoresGroups(s.cfg) {
 		queryGroupID = nil
 		includeGrouped = true
 	}
