@@ -469,7 +469,7 @@ func (s *GeminiMessagesCompatService) listSchedulableAccountsOnce(ctx context.Co
 	if groupID != nil {
 		return s.accountRepo.ListSchedulableByGroupIDAndPlatforms(ctx, *groupID, queryPlatforms)
 	}
-	if s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
+	if config.SimpleModeIgnoresGroups(s.cfg) {
 		return s.accountRepo.ListSchedulableByPlatforms(ctx, queryPlatforms)
 	}
 	return s.accountRepo.ListSchedulableUngroupedByPlatforms(ctx, queryPlatforms)

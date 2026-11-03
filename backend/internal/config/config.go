@@ -111,8 +111,10 @@ type Config struct {
 	SimpleModeKeyRateLimitEnabled bool `mapstructure:"simple_mode_key_rate_limit_enabled" yaml:"simple_mode_key_rate_limit_enabled"`
 }
 
-// SimpleModeConfig controls startup behavior in simple mode.
+// SimpleModeConfig controls startup and optional scheduling isolation in simple mode.
 type SimpleModeConfig struct {
+	// EnforceGroupIsolation keeps group routing independent of simple-mode billing.
+	EnforceGroupIsolation   bool `mapstructure:"enforce_group_isolation" yaml:"enforce_group_isolation"`
 	AutoCreateDefaultGroups bool `mapstructure:"auto_create_default_groups" yaml:"auto_create_default_groups"`
 }
 
@@ -2034,6 +2036,7 @@ func configureConfigSource(setConfigFile, addConfigPath func(string)) {
 func setDefaults() {
 	viper.SetDefault("run_mode", RunModeStandard)
 	viper.SetDefault("simple_mode.auto_create_default_groups", true)
+	viper.SetDefault("simple_mode.enforce_group_isolation", false)
 	viper.SetDefault("simple_mode_key_rate_limit_enabled", false)
 
 	// Server

@@ -1512,7 +1512,7 @@ func (s *OpenAIGatewayService) listSchedulableAccounts(ctx context.Context, grou
 	}
 	var accounts []Account
 	var err error
-	if s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
+	if config.SimpleModeIgnoresGroups(s.cfg) {
 		accounts, err = s.accountRepo.ListSchedulableByPlatform(ctx, platform)
 	} else if groupID != nil {
 		accounts, err = s.accountRepo.ListSchedulableByGroupIDAndPlatform(ctx, *groupID, platform)
@@ -1658,7 +1658,7 @@ func (s *OpenAIGatewayService) recheckSelectedOpenAIAccountFromDBBeforeProfit(ct
 }
 
 func (s *OpenAIGatewayService) openAIAccountMatchesSchedulingGroup(account *Account, groupID *int64) bool {
-	if s != nil && s.cfg != nil && s.cfg.RunMode == config.RunModeSimple {
+	if s != nil && config.SimpleModeIgnoresGroups(s.cfg) {
 		return account != nil
 	}
 	return openAIStickyAccountMatchesGroup(account, groupID)

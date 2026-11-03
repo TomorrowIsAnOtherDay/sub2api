@@ -687,7 +687,7 @@ func (s *SchedulerSnapshotService) handleAccountEvent(ctx context.Context, accou
 }
 
 func (s *SchedulerSnapshotService) handleGroupEvent(ctx context.Context, groupID *int64, seen map[batchSeenKey]struct{}) error {
-	if groupID == nil || *groupID <= 0 || s.isRunModeSimple() {
+	if groupID == nil || *groupID <= 0 || s.ignoresGroupIsolation() {
 		return nil
 	}
 	if seen != nil {
@@ -719,7 +719,7 @@ func (s *SchedulerSnapshotService) reconcileGroupLifecycle(ctx context.Context, 
 // active 仅 Reopen canonical bucket；missing/inactive 同时 Retire canonical 与已登记历史 bucket；
 // group event 路径只有在权威决策和后续重建全部成功后才会标记 seen。
 func (s *SchedulerSnapshotService) prepareGroupLifecycle(ctx context.Context, groupID int64, knownHistorical []SchedulerBucket) (plan schedulerGroupLifecyclePlan, retErr error) {
-	if groupID <= 0 || s.isRunModeSimple() {
+	if groupID <= 0 || s.ignoresGroupIsolation() {
 		return schedulerGroupLifecyclePlan{}, nil
 	}
 	if s.cache == nil || s.groupRepo == nil {
@@ -1057,7 +1057,7 @@ func (s *SchedulerSnapshotService) rebuildFullSnapshot(ctx context.Context, reas
 	}
 	registered = dedupeBuckets(registered)
 
-	if s.isRunModeSimple() {
+	if s.ignoresGroupIsolation() {
 		canonical := schedulerCanonicalBuckets(0)
 		captured, err := s.captureFullRebuildCanonicalTasks(ctx, canonical)
 		if err != nil {
@@ -1473,7 +1473,7 @@ func (s *SchedulerSnapshotService) loadAccountsFromDB(ctx context.Context, bucke
 		return nil, ErrSchedulerCacheNotReady
 	}
 	groupID := bucket.GroupID
-	if s.isRunModeSimple() {
+	if s.ignoresGroupIsolation() {
 		groupID = 0
 	}
 
@@ -1483,7 +1483,7 @@ func (s *SchedulerSnapshotService) loadAccountsFromDB(ctx context.Context, bucke
 		var err error
 		if groupID > 0 {
 			accounts, err = s.accountRepo.ListSchedulableByGroupIDAndPlatforms(ctx, groupID, platforms)
-		} else if s.isRunModeSimple() {
+		} else if s.ignoresGroupIsolation() {
 			accounts, err = s.accountRepo.ListSchedulableByPlatforms(ctx, platforms)
 		} else {
 			accounts, err = s.accountRepo.ListSchedulableUngroupedByPlatforms(ctx, platforms)
@@ -1504,7 +1504,7 @@ func (s *SchedulerSnapshotService) loadAccountsFromDB(ctx context.Context, bucke
 	if groupID > 0 {
 		return s.accountRepo.ListSchedulableByGroupIDAndPlatform(ctx, groupID, bucket.Platform)
 	}
-	if s.isRunModeSimple() {
+	if s.ignoresGroupIsolation() {
 		return s.accountRepo.ListSchedulableByPlatform(ctx, bucket.Platform)
 	}
 	return s.accountRepo.ListSchedulableUngroupedByPlatform(ctx, bucket.Platform)
@@ -1543,7 +1543,7 @@ func (s *SchedulerSnapshotService) bucketFor(groupID *int64, platform string, mo
 }
 
 func (s *SchedulerSnapshotService) normalizeGroupID(groupID *int64) int64 {
-	if s.isRunModeSimple() {
+	if s.ignoresGroupIsolation() {
 		return 0
 	}
 	if groupID == nil || *groupID <= 0 {
@@ -1553,7 +1553,7 @@ func (s *SchedulerSnapshotService) normalizeGroupID(groupID *int64) int64 {
 }
 
 func (s *SchedulerSnapshotService) normalizeGroupIDs(groupIDs []int64) []int64 {
-	if s.isRunModeSimple() {
+	if s.ignoresGroupIsolation() {
 		return []int64{0}
 	}
 	if len(groupIDs) == 0 {
@@ -1614,8 +1614,8 @@ func (s *SchedulerSnapshotService) withFallbackTimeout(ctx context.Context) (con
 	return context.WithTimeout(ctx, timeout)
 }
 
-func (s *SchedulerSnapshotService) isRunModeSimple() bool {
-	return s.cfg != nil && s.cfg.RunMode == config.RunModeSimple
+func (s *SchedulerSnapshotService) ignoresGroupIsolation() bool {
+	return config.SimpleModeIgnoresGroups(s.cfg)
 }
 
 func (s *SchedulerSnapshotService) outboxPollInterval() time.Duration {
